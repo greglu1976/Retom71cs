@@ -90,9 +90,14 @@ namespace ModeRetomer
         // Минимальный класс для шага (без избыточного поля "step")
         public class AutoTestStep
         {
-            public string Type { get; set; }      // "pause" или "run"
-            public string Message { get; set; }   // для "pause"
-            public int? DurationMs { get; set; }  // для "run"
+            [JsonProperty("type")]
+            public string Type { get; set; }
+
+            [JsonProperty("message")]
+            public string Message { get; set; }
+
+            [JsonProperty("duration_ms")]  // ← Ключевое исправление!
+            public int? DurationMs { get; set; }
         }
 
         // Метод загрузки autotest.json
@@ -468,7 +473,7 @@ namespace ModeRetomer
                 await Task.Delay(3000);
 
                 EnableRetom();
-
+                RetomResetContacts();
 
                 foreach (var step in autoTestSteps)
                 {
@@ -479,6 +484,7 @@ namespace ModeRetomer
                             break;
 
                         case "run":
+
                             RetomSetContacts();
                             RetomOut();
 
@@ -488,13 +494,18 @@ namespace ModeRetomer
                             ModeUp();
                             break;
 
+                        case "reset":
+
+                            RetomResetContacts();
+                            break;
+
                         default:
                             MessageBox.Show($"Неизвестный тип шага: {step.Type}");
                             break;
                     }
                 }
 
-                RetomResetContacts();
+                //RetomResetContacts();
                 DisableRetom();
             }
             finally

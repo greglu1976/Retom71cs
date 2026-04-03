@@ -41,7 +41,7 @@ namespace ModeRetomer
         private void Divider() 
         {
             // Паттерны для исключения аналоговых сигналов
-            var analogPatterns = new HashSet<string> { "IA", "IB", "IC", "UA1", "UB1", "UC1",
+            /*var analogPatterns = new HashSet<string> { "IA", "IB", "IC", "UA1", "UB1", "UC1",
                                               "dIA", "dIB", "dIC", "dUA1", "dUB1", "dUC1",
                                               "IA1", "IB1", "IC1", "UA2", "UB2", "UC2",
                                               "dIA1", "dIB1", "dIC1", "dUA2", "dUB2", "dUC2",
@@ -60,9 +60,41 @@ namespace ModeRetomer
                 .Where(item => !analogPatterns.Any(pattern => item.Key.Contains(pattern)))
                 .ToDictionary(item => item.Key, item => item.Value);
 
+            */
+
+            // Паттерны для аналоговых сигналов (проверяем начало строки)
+            var analogPatterns = new HashSet<string>
+    {
+        "IA", "IB", "IC",           // Токи
+        "UA1", "UB1", "UC1",        // Напряжения группа 1
+        "dIA", "dIB", "dIC",        // Дифференциальные токи
+        "dUA1", "dUB1", "dUC1",     // Дифференциальные напряжения группа 1
+        "IA1", "IB1", "IC1",        // Токи группа 1 (альтернативное имя)
+        "UA2", "UB2", "UC2",        // Напряжения группа 2
+        "dIA1", "dIB1", "dIC1",     // Дифференциальные токи группа 1
+        "dUA2", "dUB2", "dUC2",     // Дифференциальные напряжения группа 2
+        "IA2harm", "IB2harm", "IC2harm",  // Гармоники 2-го порядка
+        "IA5harm", "IB5harm", "IC5harm",  // Гармоники 5-го порядка
+        "diffA", "restA", "diffB", "restB", "diffC", "restC"  // Дифференциальные сигналы
+    };
+
+            // Проверяем, начинается ли ключ с любого из паттернов
+            var analogItems = FullInputsJson
+                .Where(item => analogPatterns.Any(pattern => item.Key.StartsWith(pattern)))
+                .ToDictionary(item => item.Key, item => item.Value);
+
+            var digitalItems = FullInputsJson
+                .Where(item => !analogPatterns.Any(pattern => item.Key.StartsWith(pattern)))
+                .ToDictionary(item => item.Key, item => item.Value);
+
+            // Process OutputsJson to remove analog patterns
+            var digitalOutputs = OutputsJson
+                .Where(item => !analogPatterns.Any(pattern => item.Key.StartsWith(pattern)))
+                .ToDictionary(item => item.Key, item => item.Value);
+
             AnalsJson = analogItems;
             InputsJson = digitalItems;
-            OutputsJson = digitalOutputs; // Update OutputsJson to exclude analog patterns
+            OutputsJson = digitalOutputs;
 
         }
     }

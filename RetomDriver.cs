@@ -145,15 +145,17 @@ namespace ModeRetomer
                             channels.SetSinSignal(nChannel: 3, dAmpl: AnalGr1[0], dPhase: AnalGr1[1]);
                             channels.SetSinSignal(nChannel: 4, dAmpl: AnalGr1[2], dPhase: AnalGr1[3]);
                             channels.SetSinSignal(nChannel: 5, dAmpl: AnalGr1[4], dPhase: AnalGr1[5]);
-                           // channels.AddHarmonica(nChannel: 3, dAmpl: AnalGr1[0], dPhase: AnalGr1[1], dFreq: 50, dExp: 0);
+
+                            //channels.AddHarmonica(nChannel: 3, dAmpl: AnalGr1[0], dPhase: AnalGr1[1], dFreq: 50, dExp: 0);
                             //channels.AddHarmonica(nChannel: 4, dAmpl: AnalGr1[2], dPhase: AnalGr1[3], dFreq: 50, dExp: 0);
-                           // channels.AddHarmonica(nChannel: 5, dAmpl: AnalGr1[4], dPhase: AnalGr1[5], dFreq: 50, dExp: 0);
+                            //channels.AddHarmonica(nChannel: 5, dAmpl: AnalGr1[4], dPhase: AnalGr1[5], dFreq: 50, dExp: 0);
                             //channels.AddHarmonica(nChannel: 3, dAmpl: AnalGr3[0], dPhase: 0, dFreq: 100, dExp: 0);
                             //channels.AddHarmonica(nChannel: 4, dAmpl: AnalGr3[1], dPhase: 240, dFreq: 100, dExp: 0);
                             //channels.AddHarmonica(nChannel: 5, dAmpl: AnalGr3[2], dPhase: 120, dFreq: 100, dExp: 0);
                             //channels.AddHarmonica(nChannel: 3, dAmpl: AnalGr4[0], dPhase: 0, dFreq: 250, dExp: 0);
                             //channels.AddHarmonica(nChannel: 4, dAmpl: AnalGr4[1], dPhase: 240, dFreq: 250, dExp: 0);
                             //channels.AddHarmonica(nChannel: 5, dAmpl: AnalGr4[2], dPhase: 120, dFreq: 250, dExp: 0);
+
                             object ob1 = channels;
 
                             RTDI.CoAnalogOutputs channels1 = m_retom.NewAnalogChannels();

@@ -168,7 +168,7 @@ namespace ModeRetomer
                             channels1.SetSinSignal(nChannel: 5, dAmpl: AnalGr2[4], dPhase: AnalGr2[5]);
                             object ob2 = channels1;
 
-                            m_nResultReturn = m_retom.Enable();
+                            //m_nResultReturn = m_retom.Enable(); // ПРОВЕРИТЬ РАБОТАЕТ ТАК ИЛИ НЕТ 06.04.2026
                             //m_nResultReturn = m_retom.Out61(ref ob1, RTLink.Constants.RT_UI_ALL, ref ob2, RTLink.Constants.RT_UI_ALL);
 
                             //m_retom.SetTimeOut(20);

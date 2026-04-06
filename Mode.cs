@@ -27,7 +27,7 @@ namespace ModeRetomer
 
 
         // Внутренний коэффициент деления для токов — легко изменить здесь при необходимости !!!! Изменить при нормальной прошивке устройства 1:1 ,то есть =1.0
-        private readonly double _currentScalingFactor = 5.0;
+        private readonly double _currentScalingFactor = 5.0; //5.0;
 
 
 

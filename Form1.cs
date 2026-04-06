@@ -454,7 +454,7 @@ namespace ModeRetomer
             m_retomDrv.RemoveRetom();
         }
 
-        private async void btnStartAutoTest_Click(object sender, EventArgs e)
+        private async void btnStartAutoTest_ClickOLD(object sender, EventArgs e)
         {
             if (autoTestSteps == null)
                 return;
@@ -513,6 +513,142 @@ namespace ModeRetomer
                 btnStartAutoTest.Enabled = true;
             }
         }
+
+
+        private async void btnStartAutoTest_Click(object sender, EventArgs e)
+        {
+            if (autoTestSteps == null)
+                return;
+
+            // Отключаем кнопку, чтобы не запустить дважды
+            btnStartAutoTest.Enabled = false;
+            currMode = 0;
+
+            // Создаем лог-файл
+            string logPath = @"C:\TEMP\AutoTestLog.txt";
+            StringBuilder logBuilder = new StringBuilder();
+            logBuilder.AppendLine($"=== АВТОТЕСТ ЗАПУЩЕН {DateTime.Now:yyyy-MM-dd HH:mm:ss} ===");
+            logBuilder.AppendLine($"Всего шагов: {autoTestSteps.Count}");
+            logBuilder.AppendLine();
+
+            Stopwatch totalStopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                // Шаг 1: CreateRetom
+                DateTime stepStart = DateTime.Now;
+                CreateRetom();
+                await Task.Delay(5000);
+                logBuilder.AppendLine($"1. CreateRetom: {(DateTime.Now - stepStart).TotalMilliseconds} мс (задержка 5000 мс)");
+
+                // Шаг 2: OpenRetom
+                stepStart = DateTime.Now;
+                OpenRetom();
+                await Task.Delay(3000);
+                logBuilder.AppendLine($"2. OpenRetom: {(DateTime.Now - stepStart).TotalMilliseconds} мс (задержка 3000 мс)");
+
+                // Шаг 3: EnableRetom и RetomResetContacts
+                stepStart = DateTime.Now;
+                EnableRetom();
+                RetomResetContacts();
+                logBuilder.AppendLine($"3. EnableRetom + RetomResetContacts: {(DateTime.Now - stepStart).TotalMilliseconds} мс");
+
+                int stepIndex = 4;
+                foreach (var step in autoTestSteps)
+                {
+                    DateTime stepStartTime = DateTime.Now;
+                    var stepStopwatch = Stopwatch.StartNew();
+
+                    try
+                    {
+                        switch (step.Type)
+                        {
+                            case "pause":
+                                MessageBox.Show($"PAUSE: {step.Message}");
+                                logBuilder.AppendLine($"Шаг {stepIndex} (PAUSE): {step.Message} - Время выполнения: {stepStopwatch.ElapsedMilliseconds} мс");
+                                break;
+
+                            case "run":
+                                var swContacts = Stopwatch.StartNew();
+                                RetomSetContacts();
+                                swContacts.Stop();
+                                logBuilder.AppendLine($"  - RetomSetContacts: {swContacts.ElapsedMilliseconds} мс");
+
+                                var swOut = Stopwatch.StartNew();
+                                RetomOut();
+                                swOut.Stop();
+                                logBuilder.AppendLine($"  - RetomOut: {swOut.ElapsedMilliseconds} мс");
+
+                                int duration = step.DurationMs ?? 5000;
+
+                                var swDelay = Stopwatch.StartNew();
+                                await Task.Delay(duration);
+                                swDelay.Stop();
+                                logBuilder.AppendLine($"  - Task.Delay({duration}): {swDelay.ElapsedMilliseconds} мс");
+
+                                var swModeUp = Stopwatch.StartNew();
+                                ModeUp();
+                                swModeUp.Stop();
+                                logBuilder.AppendLine($"  - ModeUp: {swModeUp.ElapsedMilliseconds} мс");
+
+                                logBuilder.AppendLine($"Шаг {stepIndex} (RUN): ИТОГО={swContacts.ElapsedMilliseconds + swOut.ElapsedMilliseconds + swDelay.ElapsedMilliseconds + swModeUp.ElapsedMilliseconds} мс");
+                                break;
+
+                            case "reset":
+                                RetomResetContacts();
+                                logBuilder.AppendLine($"Шаг {stepIndex} (RESET): Время выполнения={stepStopwatch.ElapsedMilliseconds} мс");
+                                break;
+
+                            default:
+                                MessageBox.Show($"Неизвестный тип шага: {step.Type}");
+                                logBuilder.AppendLine($"Шаг {stepIndex} (НЕИЗВЕСТНЫЙ): {step.Type} - Время выполнения={stepStopwatch.ElapsedMilliseconds} мс");
+                                break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logBuilder.AppendLine($"ОШИБКА на шаге {stepIndex} ({step.Type}): {ex.Message}");
+                        throw; // Перебрасываем исключение дальше
+                    }
+                    finally
+                    {
+                        stepIndex++;
+                    }
+                }
+
+                DisableRetom();
+
+                totalStopwatch.Stop();
+                logBuilder.AppendLine();
+                logBuilder.AppendLine($"=== АВТОТЕСТ ЗАВЕРШЕН {DateTime.Now:yyyy-MM-dd HH:mm:ss} ===");
+                logBuilder.AppendLine($"Общее время выполнения: {totalStopwatch.ElapsedMilliseconds} мс ({totalStopwatch.Elapsed.TotalSeconds:F2} сек)");
+
+                // Показываем сводку
+                MessageBox.Show($"Автотест завершен!\nОбщее время: {totalStopwatch.Elapsed.TotalSeconds:F2} сек\nЛог сохранен:\n{logPath}",
+                              "Результат", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                logBuilder.AppendLine($"КРИТИЧЕСКАЯ ОШИБКА: {ex.Message}");
+                logBuilder.AppendLine($"Stack Trace: {ex.StackTrace}");
+                MessageBox.Show($"Ошибка при выполнении автотеста:\n{ex.Message}",
+                              "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Сохраняем лог
+                File.WriteAllText(logPath, logBuilder.ToString());
+                btnStartAutoTest.Enabled = true;
+            }
+        }
+
+
+
+
+
+
+
+
 
         private void btnStopAutoTest_Click(object sender, EventArgs e)
         {

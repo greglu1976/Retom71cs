@@ -27,7 +27,7 @@ namespace ModeRetomer
 
 
         // Внутренний коэффициент деления для токов — легко изменить здесь при необходимости !!!! Изменить при нормальной прошивке устройства 1:1 ,то есть =1.0
-        private readonly double _currentScalingFactor = 5.0; //5.0;
+        private readonly double _currentScalingFactor = 1.0; //5.0;
 
 
 
@@ -392,7 +392,19 @@ namespace ModeRetomer
         }
 
 
+        // Метод для проверки наличия гармоник в режиме
+        public bool HasHarmonics()
+        {
+            // Проверяем группу 3 (2-е гармоники)
+            bool hasGroup3Harmonics = isActiveGr3 && AnalRetomGr3 != null &&
+                                      AnalRetomGr3.Any(value => Math.Abs(value) > 0.001);
 
+            // Проверяем группу 4 (5-е гармоники)
+            bool hasGroup4Harmonics = isActiveGr4 && AnalRetomGr4 != null &&
+                                      AnalRetomGr4.Any(value => Math.Abs(value) > 0.001);
+
+            return hasGroup3Harmonics || hasGroup4Harmonics;
+        }
 
 
 

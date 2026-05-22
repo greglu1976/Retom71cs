@@ -158,6 +158,36 @@ namespace ModeRetomer
 
                             object ob1 = channels;
 
+
+                            /*
+                                // Используем IRTSineChannels (быстрее)
+                                RTLink.IRTSineChannels sig1 = new RTLink.IRTSineChannels()
+                            {
+                                I = new RTLink.IRTSSignal[3],
+                                U = new RTLink.IRTSSignal[3],
+                                dFreq = 50.0
+                            };
+
+                            sig1.U[0].dAmpl = AnalGr1[6];
+                            sig1.U[0].dPhase = AnalGr1[7];
+                            sig1.U[1].dAmpl = AnalGr1[8];
+                            sig1.U[1].dPhase = AnalGr1[9];
+                            sig1.U[2].dAmpl = AnalGr1[10];
+                            sig1.U[2].dPhase = AnalGr1[11];
+
+                            sig1.I[0].dAmpl = AnalGr1[0];
+                            sig1.I[0].dPhase = AnalGr1[1];
+                            sig1.I[1].dAmpl = AnalGr1[2];
+                            sig1.I[1].dPhase = AnalGr1[3];
+                            sig1.I[2].dAmpl = AnalGr1[4];
+                            sig1.I[2].dPhase = AnalGr1[5];
+
+                            object ob1 = sig1;
+                            m_nResultReturn = m_retom.Out(ref ob1, RTLink.Constants.RT_UI_ALL);
+                            break;
+                                */
+
+
                             RTDI.CoAnalogOutputs channels1 = m_retom.NewAnalogChannels();
                             channels1.dFrequency = 50;
                             channels1.SetSinSignal(nChannel: 0, dAmpl: AnalGr2[6], dPhase: AnalGr2[7]);
@@ -169,10 +199,19 @@ namespace ModeRetomer
                             object ob2 = channels1;
 
                             //m_nResultReturn = m_retom.Enable(); // ПРОВЕРИТЬ РАБОТАЕТ ТАК ИЛИ НЕТ 06.04.2026
-                            //m_nResultReturn = m_retom.Out61(ref ob1, RTLink.Constants.RT_UI_ALL, ref ob2, RTLink.Constants.RT_UI_ALL);
+                            m_nResultReturn = m_retom.Out61(ref ob1, RTLink.Constants.RT_UI_ALL, ref ob2, RTLink.Constants.RT_UI_ALL);
 
-                            //m_retom.SetTimeOut(20);
-                            m_nResultReturn = m_retom.Out(ref ob1, RTLink.Constants.RT_UI_ALL);
+
+                            //m_retom.SetTimeOut(0.2);
+                            //m_nResultReturn = m_retom.Out(ref ob1, RTLink.Constants.RT_UI_ALL);
+
+                            //var sw = Stopwatch.StartNew();
+                            //m_retom.SetTimeOut(0.2);
+                            //m_nResultReturn = m_retom.Out(ref ob1, RTLink.Constants.RT_UI_ALL);
+                            //sw.Stop();
+
+                            //Debug.WriteLine($"Out выполнен за {sw.ElapsedMilliseconds} мс");
+                            //Console.WriteLine($"Out выполнен за {sw.ElapsedMilliseconds} мс");
 
 
                             //var info = m_retom.ServerInfo.maxI;
@@ -189,9 +228,45 @@ namespace ModeRetomer
                             //m_nResultReturn = m_retom.Out61(ref ob11, RTLink.Constants.RT_UI_ALL, ref ob12, RTLink.Constants.RT_UI_ALL);
                             //m_nResultReturn = m_retom.Out61(ref ob1, RTLink.Constants.RT_UI_ALL, ref ob2, RTLink.Constants.RT_UI_ALL);
                             break;
-                    }
-                }
 
+                            case "Out61Harms":
+
+                                RTDI.CoAnalogOutputs channelsH = m_retom.NewAnalogChannels();
+                                channelsH.dFrequency = 50;
+                                channelsH.SetSinSignal(nChannel: 0, dAmpl: AnalGr1[6], dPhase: AnalGr1[7]);
+                                channelsH.SetSinSignal(nChannel: 1, dAmpl: AnalGr1[8], dPhase: AnalGr1[9]);
+                                channelsH.SetSinSignal(nChannel: 2, dAmpl: AnalGr1[10], dPhase: AnalGr1[11]);
+                                channelsH.SetSinSignal(nChannel: 3, dAmpl: AnalGr1[0], dPhase: AnalGr1[1]);
+                                channelsH.SetSinSignal(nChannel: 4, dAmpl: AnalGr1[2], dPhase: AnalGr1[3]);
+                                channelsH.SetSinSignal(nChannel: 5, dAmpl: AnalGr1[4], dPhase: AnalGr1[5]);
+
+                                channelsH.AddHarmonica(nChannel: 3, dAmpl: AnalGr1[0], dPhase: AnalGr1[1], dFreq: 50, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 4, dAmpl: AnalGr1[2], dPhase: AnalGr1[3], dFreq: 50, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 5, dAmpl: AnalGr1[4], dPhase: AnalGr1[5], dFreq: 50, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 3, dAmpl: AnalGr3[0], dPhase: 0, dFreq: 100, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 4, dAmpl: AnalGr3[1], dPhase: 240, dFreq: 100, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 5, dAmpl: AnalGr3[2], dPhase: 120, dFreq: 100, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 3, dAmpl: AnalGr4[0], dPhase: 0, dFreq: 250, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 4, dAmpl: AnalGr4[1], dPhase: 240, dFreq: 250, dExp: 0);
+                                channelsH.AddHarmonica(nChannel: 5, dAmpl: AnalGr4[2], dPhase: 120, dFreq: 250, dExp: 0);
+
+                                object ob1H = channelsH;
+
+                                RTDI.CoAnalogOutputs channels1H = m_retom.NewAnalogChannels();
+                                channels1H.dFrequency = 50;
+                                channels1H.SetSinSignal(nChannel: 0, dAmpl: AnalGr2[6], dPhase: AnalGr2[7]);
+                                channels1H.SetSinSignal(nChannel: 1, dAmpl: AnalGr2[8], dPhase: AnalGr2[9]);
+                                channels1H.SetSinSignal(nChannel: 2, dAmpl: AnalGr2[10], dPhase: AnalGr2[11]);
+                                channels1H.SetSinSignal(nChannel: 3, dAmpl: AnalGr2[0], dPhase: AnalGr2[1]);
+                                channels1H.SetSinSignal(nChannel: 4, dAmpl: AnalGr2[2], dPhase: AnalGr2[3]);
+                                channels1H.SetSinSignal(nChannel: 5, dAmpl: AnalGr2[4], dPhase: AnalGr2[5]);
+                                object ob2H = channels1H;
+
+                                m_nResultReturn = m_retom.Out61(ref ob1H, RTLink.Constants.RT_UI_ALL, ref ob2H, RTLink.Constants.RT_UI_ALL);
+
+                                break;
+                        }
+                }
             }
             catch
             {

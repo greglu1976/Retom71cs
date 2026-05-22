@@ -42,7 +42,7 @@ namespace ModeRetomer
 
                 // Умный начальный путь: рабочий стол текущего пользователя + подпапка (если существует)
                 string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string defaultPath = Path.Combine(desktopPath, @"М300-Т\PMI-T\ПМИ ТОКЗ\tkzdz_modes");
+                string defaultPath = Path.Combine(desktopPath, @"М300-Т2\PMI-T2\ПМИ ТОКЗ\lzt_modes");
                 folderDialog.SelectedPath = Directory.Exists(defaultPath) ? defaultPath : desktopPath;
 
                 // Показываем диалог и проверяем результат
@@ -378,7 +378,24 @@ namespace ModeRetomer
             m_retomDrv.AnalGr3 = modeManager.modesCollection[currMode].AnalRetomGr3;
             m_retomDrv.AnalGr4 = modeManager.modesCollection[currMode].AnalRetomGr4;
             m_retomDrv.Contacts = modeManager.modesCollection[currMode].OutputsRetom;
-            m_retomDrv.m_stFunction = "Out61";
+
+            // Выбираем метод в зависимости от наличия гармоник
+            Mode currentMode = modeManager.modesCollection[currMode];
+            if (currentMode.HasHarmonics())
+            {
+                m_retomDrv.m_stFunction = "Out61Harms";
+                // Логируем, если нужно
+                Console.WriteLine($"Режим {currMode}: используются гармоники (Out61Harms)");
+            }
+            else
+            {
+                m_retomDrv.m_stFunction = "Out61";
+                Console.WriteLine($"Режим {currMode}: гармоники отсутствуют (Out61)");
+            }
+
+
+
+            //m_retomDrv.m_stFunction = "Out61";
             m_retomDrv.RunRetom(); // !!! ТАК РАБОТАЕТ
             //RunFunction(); // ТАК НЕ РАБОТАЕТ
         }
@@ -593,6 +610,29 @@ namespace ModeRetomer
 
                                 logBuilder.AppendLine($"Шаг {stepIndex} (RUN): ИТОГО={swContacts.ElapsedMilliseconds + swOut.ElapsedMilliseconds + swDelay.ElapsedMilliseconds + swModeUp.ElapsedMilliseconds} мс");
                                 break;
+
+
+                            case "run-without-out":
+                                var swContacts1 = Stopwatch.StartNew();
+                                RetomSetContacts();
+                                swContacts1.Stop();
+                                logBuilder.AppendLine($"  - RetomSetContacts: {swContacts1.ElapsedMilliseconds} мс");
+
+                                int duration1 = step.DurationMs ?? 5000;
+
+                                var swDelay1 = Stopwatch.StartNew();
+                                await Task.Delay(duration1);
+                                swDelay1.Stop();
+                                logBuilder.AppendLine($"  - Task.Delay({duration1}): {swDelay1.ElapsedMilliseconds} мс");
+
+                                var swModeUp1 = Stopwatch.StartNew();
+                                ModeUp();
+                                swModeUp1.Stop();
+                                logBuilder.AppendLine($"  - ModeUp: {swModeUp1.ElapsedMilliseconds} мс");
+
+                                logBuilder.AppendLine($"Шаг {stepIndex} (RUN-WITHOUT_OUT): ИТОГО={swContacts1.ElapsedMilliseconds  + swDelay1.ElapsedMilliseconds + swModeUp1.ElapsedMilliseconds} мс");
+                                break;
+
 
                             case "reset":
                                 RetomResetContacts();
